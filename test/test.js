@@ -1043,6 +1043,25 @@ describe('Raw response', () => {
 	})
 })
 
+describe('On cluster', () => {
+	// Note: this test only works with ClickHouse setup as Cluster named test_cluster
+	// To run this test locally, setup Clickhouse properly and change it.skip() -> it()
+	it.skip('should be able to create and drop a table', async () => {
+		const createTableQuery = `
+			CREATE TABLE ${database}.test_on_cluster ON CLUSTER test_cluster (
+				test String
+			)
+			ENGINE=MergeTree ORDER BY test;`;
+		const createTableQueryResult = await clickhouse.query(createTableQuery).toPromise();
+		expect(createTableQueryResult).to.be.ok();
+
+		const dropTableQuery = `
+			DROP TABLE ${database}.test_on_cluster ON CLUSTER test_cluster;`;
+		const dropTableQueryResult = await clickhouse.query(dropTableQuery).toPromise();
+		expect(dropTableQueryResult).to.be.ok();
+	});
+});
+
 after(async () => {
 	await clickhouse.query(`DROP DATABASE IF EXISTS ${database}`).toPromise();
 });
